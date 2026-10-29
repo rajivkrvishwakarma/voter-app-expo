@@ -14,8 +14,10 @@ export const API_ENDPOINTS = {
   system: {
     health: '/health',
   },
-  // Future domain endpoints (e.g. auth, polls, ballots, users) are to be registered here
-  // once the backend API contract is verified.
+  // Authentication & Credential verification endpoints
+  auth: {
+    verifyEmailCredential: '/auth/verify-email-credential',
+  },
 } as const;
 
 /**

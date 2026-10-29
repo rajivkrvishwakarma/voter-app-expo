@@ -5,6 +5,7 @@ import {
   View,
   type PressableProps,
   type ViewStyle,
+  type StyleProp,
   StyleSheet,
 } from 'react-native';
 import { useAppTheme } from '@/providers/ThemeProvider';
@@ -21,7 +22,7 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   disabled?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   className?: string;
 }
 
