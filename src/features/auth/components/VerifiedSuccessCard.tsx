@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -10,7 +11,6 @@ export interface VerifiedSuccessCardProps {
 }
 
 export function VerifiedSuccessCard({ email, onContinue }: VerifiedSuccessCardProps) {
-
   return (
     <View style={styles.container}>
       {/* Success Badge Icon */}
@@ -18,9 +18,9 @@ export function VerifiedSuccessCard({ email, onContinue }: VerifiedSuccessCardPr
         <View style={styles.outerCircle}>
           <View style={styles.innerCircle}>
             {/* Mail Icon with Checkmark */}
-            <Text style={styles.envelopeIcon}>✉</Text>
+            <Ionicons name="mail" size={28} color="#ffffff" />
             <View style={styles.checkmarkBadge}>
-              <Text style={styles.checkmarkText}>✓</Text>
+              <Ionicons name="checkmark" size={13} color="#ffffff" />
             </View>
           </View>
         </View>
@@ -38,9 +38,9 @@ export function VerifiedSuccessCard({ email, onContinue }: VerifiedSuccessCardPr
       {/* Verified Account Card */}
       <Card variant="bordered" style={styles.accountCard}>
         <View style={styles.cardRow}>
-          {/* Gmail 'M' logo */}
+          {/* Google emblem */}
           <View style={styles.gmailIcon}>
-            <Text style={styles.gmailText}>M</Text>
+            <Ionicons name="logo-google" size={22} color="#ea4335" />
           </View>
 
           <View style={styles.accountTextContainer}>
@@ -50,7 +50,7 @@ export function VerifiedSuccessCard({ email, onContinue }: VerifiedSuccessCardPr
 
             <View style={styles.verifiedBadgeRow}>
               <View style={styles.verifiedBadge}>
-                <Text style={styles.verifiedBadgeIcon}>✓</Text>
+                <Ionicons name="checkmark" size={12} color="#059669" style={{ marginRight: 4 }} />
                 <Text style={styles.verifiedBadgeText}>Verified</Text>
               </View>
             </View>

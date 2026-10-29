@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { ScreenContainer, Text, Button, Input } from '@/components/ui';
 import { useAppTheme } from '@/providers/ThemeProvider';
 import {
@@ -85,9 +86,7 @@ export function CreateAccountScreen() {
           style={styles.backButton}
           onPress={() => setStep('verified_form')}
         >
-          <Text variant="title" weight="regular" color="secondary">
-            ←
-          </Text>
+          <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
         </Pressable>
         <VerifiedSuccessCard email={email} onContinue={handleReset} />
       </ScreenContainer>
@@ -107,9 +106,7 @@ export function CreateAccountScreen() {
           style={styles.backButton}
           onPress={isVerified ? handleReset : undefined}
         >
-          <Text variant="title" weight="regular" color="secondary">
-            ←
-          </Text>
+          <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
         </Pressable>
       </View>
 
@@ -145,7 +142,7 @@ export function CreateAccountScreen() {
               rightElement={
                 isVerified ? (
                   <View style={styles.inputCheckmarkCircle}>
-                    <Text style={styles.inputCheckmark}>✓</Text>
+                    <Ionicons name="checkmark" size={14} color="#ffffff" />
                   </View>
                 ) : undefined
               }
@@ -155,7 +152,7 @@ export function CreateAccountScreen() {
             {isVerified && (
               <View style={styles.verifiedTagRow}>
                 <View style={styles.verifiedTag}>
-                  <Text style={styles.verifiedTagCheck}>✓</Text>
+                  <Ionicons name="checkmark" size={13} color="#059669" style={{ marginRight: 4 }} />
                   <Text style={styles.verifiedTagText}>Verified</Text>
                 </View>
               </View>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/ui/Text';
 import { useAppTheme } from '@/providers/ThemeProvider';
 
@@ -33,13 +34,15 @@ export function GoogleEmailButton({ onPress, loading = false, disabled = false }
         <ActivityIndicator size="small" color="#ffffff" />
       ) : (
         <View style={styles.content}>
-          {/* Email / Google icon emblem */}
           <View style={styles.iconContainer}>
-            <View style={styles.mailEnvelope}>
-              <Text style={styles.mailSymbol}>✉</Text>
-            </View>
+            <Ionicons name="mail" size={20} color="#ffffff" />
           </View>
-          <Text variant="label" weight="semibold" style={styles.buttonText}>
+          <Text
+            variant="label"
+            weight="bold"
+            color="inverse"
+            style={styles.buttonText}
+          >
             Continue with Google Email
           </Text>
         </View>
@@ -67,22 +70,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  mailEnvelope: {
-    width: 22,
-    height: 18,
-    borderRadius: 3,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mailSymbol: {
-    color: '#2563eb',
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginTop: -2,
-  },
   buttonText: {
     color: '#ffffff',
     fontSize: 15,
+    letterSpacing: 0.2,
   },
 });

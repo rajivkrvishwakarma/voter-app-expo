@@ -18,7 +18,7 @@ export interface AppState {
 }
 
 const initialState = {
-  themeMode: 'system' as ThemeMode,
+  themeMode: 'light' as ThemeMode,
   isOffline: false,
 };
 

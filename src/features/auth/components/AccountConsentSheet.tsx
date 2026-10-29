@@ -1,13 +1,13 @@
-import React from 'react';
-import {
-  Modal,
-  View,
-  Pressable,
-  StyleSheet,
-  type GestureResponderEvent,
-} from 'react-native';
 import { Text } from '@/components/ui/Text';
 import { useAppTheme } from '@/providers/ThemeProvider';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  View,
+  type GestureResponderEvent,
+} from 'react-native';
 import { MOCK_DEVICE_ACCOUNTS } from '../services/verifiedEmail.service';
 import type { GoogleAccountChoice } from '../types/auth.types';
 
@@ -99,13 +99,9 @@ export function AccountConsentSheet({
                   </View>
 
                   {isSelected ? (
-                    <View style={styles.radioSelected}>
-                      <View style={styles.radioDot} />
-                    </View>
+                    <Ionicons name="radio-button-on" size={22} color="#2563eb" />
                   ) : (
-                    <Text variant="body" color="muted" style={styles.chevron}>
-                      ›
-                    </Text>
+                    <Ionicons name="chevron-forward" size={18} color="#94a3b8" />
                   )}
                 </Pressable>
               );
@@ -126,16 +122,14 @@ export function AccountConsentSheet({
               onPress={() => onSelectAccount(MOCK_DEVICE_ACCOUNTS[1])}
             >
               <View style={[styles.avatar, { backgroundColor: isDark ? '#475569' : '#e2e8f0' }]}>
-                <Text style={{ color: isDark ? '#f8fafc' : '#475569', fontSize: 16 }}>+</Text>
+                <Ionicons name="add" size={20} color={isDark ? '#f8fafc' : '#475569'} />
               </View>
               <View style={styles.accountInfo}>
                 <Text variant="body" color="secondary">
                   Add another account
                 </Text>
               </View>
-              <Text variant="body" color="muted" style={styles.chevron}>
-                ›
-              </Text>
+              <Ionicons name="chevron-forward" size={18} color="#94a3b8" />
             </Pressable>
           </View>
 
