@@ -1,9 +1,8 @@
 import React, { type ReactNode } from 'react';
 import {
-  Pressable,
+  TouchableOpacity,
   ActivityIndicator,
   View,
-  type PressableProps,
   type ViewStyle,
   type StyleProp,
   StyleSheet,
@@ -14,7 +13,7 @@ import { Text } from './Text';
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> {
+export interface ButtonProps {
   title: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -23,7 +22,8 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   style?: StyleProp<ViewStyle>;
-  className?: string;
+  accessibilityLabel?: string;
+  onPress?: () => void;
 }
 
 export function Button({
@@ -35,121 +35,123 @@ export function Button({
   leftIcon,
   rightIcon,
   style,
-  className,
   accessibilityLabel,
-  ...pressableProps
+  onPress,
 }: ButtonProps) {
-  const { theme } = useAppTheme();
+  const { theme, isDark } = useAppTheme();
   const isDisabled = disabled || loading;
 
   const sizeStyles = {
-    sm: { minHeight: 36, paddingHorizontal: 12, paddingVertical: 6, radius: theme.tokens.radii.md },
-    md: { minHeight: 44, paddingHorizontal: 16, paddingVertical: 10, radius: theme.tokens.radii.lg },
-    lg: { minHeight: 52, paddingHorizontal: 20, paddingVertical: 14, radius: theme.tokens.radii.lg },
+    sm: { minHeight: 38, paddingHorizontal: 14, paddingVertical: 8, radius: theme.tokens.radii.md },
+    md: { minHeight: 46, paddingHorizontal: 18, paddingVertical: 11, radius: theme.tokens.radii.lg },
+    lg: { minHeight: 52, paddingHorizontal: 22, paddingVertical: 14, radius: theme.tokens.radii.lg },
   }[size];
 
-  const getVariantStyles = (pressed: boolean) => {
+  const primarySolid = isDark ? '#0EA5E9' : '#0284C7';
+  const primaryText = '#FFFFFF';
+
+  const getVariantStyles = () => {
     switch (variant) {
       case 'secondary':
         return {
-          bg: pressed ? theme.colors.border.default : theme.colors.background.surfaceSubtle,
+          bg: theme.colors.background.surfaceSubtle,
           border: 'transparent',
           textColor: theme.colors.text.primary,
         };
       case 'outline':
         return {
-          bg: pressed ? theme.colors.background.surfaceSubtle : 'transparent',
+          bg: 'transparent',
           border: theme.colors.border.default,
           textColor: theme.colors.text.primary,
         };
       case 'ghost':
         return {
-          bg: pressed ? theme.colors.background.surfaceSubtle : 'transparent',
+          bg: 'transparent',
           border: 'transparent',
           textColor: theme.colors.brand.primary,
         };
       case 'destructive':
         return {
-          bg: pressed ? theme.colors.status.error.solid : theme.colors.status.error.solid,
+          bg: theme.colors.status.error.solid,
           border: 'transparent',
           textColor: theme.colors.text.inverse,
         };
       case 'primary':
       default:
         return {
-          bg: pressed ? theme.colors.brand.primaryPressed : theme.colors.brand.primary,
+          bg: primarySolid,
           border: 'transparent',
-          textColor: theme.colors.brand.onPrimary,
+          textColor: primaryText,
         };
     }
   };
 
+  const v = getVariantStyles();
+
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.82}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      className={className}
-      style={({ pressed }) => {
-        const v = getVariantStyles(pressed);
-        return [
-          styles.base,
-          {
-            minHeight: sizeStyles.minHeight,
-            paddingHorizontal: sizeStyles.paddingHorizontal,
-            paddingVertical: sizeStyles.paddingVertical,
-            borderRadius: sizeStyles.radius,
-            backgroundColor: v.bg,
-            borderColor: v.border,
-            borderWidth: variant === 'outline' ? 1 : 0,
-            opacity: isDisabled ? 0.5 : 1,
-          },
-          style,
-        ];
-      }}
-      {...pressableProps}
+      onPress={onPress}
+      style={[
+        styles.base,
+        {
+          minHeight: sizeStyles.minHeight,
+          paddingHorizontal: sizeStyles.paddingHorizontal,
+          paddingVertical: sizeStyles.paddingVertical,
+          borderRadius: sizeStyles.radius,
+          backgroundColor: v.bg,
+          borderColor: v.border,
+          borderWidth: variant === 'outline' ? 1.5 : 0,
+          opacity: isDisabled ? 0.6 : 1,
+        },
+        style,
+      ]}
     >
-      {({ pressed }) => {
-        const v = getVariantStyles(pressed);
-        return (
-          <View style={styles.content}>
-            {loading ? (
-              <ActivityIndicator
-                size="small"
-                color={v.textColor}
-                style={styles.spinner}
-              />
-            ) : (
-              <>
-                {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
-                <Text
-                  variant={size === 'sm' ? 'caption' : 'label'}
-                  weight="semibold"
-                  style={{ color: v.textColor }}
-                >
-                  {title}
-                </Text>
-                {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
-              </>
-            )}
-          </View>
-        );
-      }}
-    </Pressable>
+      <View style={styles.content}>
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={v.textColor}
+            style={styles.spinner}
+          />
+        ) : (
+          <>
+            {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
+            <Text
+              variant={size === 'sm' ? 'caption' : 'label'}
+              weight="bold"
+              style={[styles.text, { color: v.textColor }]}
+            >
+              {title}
+            </Text>
+            {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
+          </>
+        )}
+      </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   base: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    overflow: 'hidden',
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
+  },
+  text: {
+    letterSpacing: 0.3,
   },
   spinner: {
     marginVertical: 2,

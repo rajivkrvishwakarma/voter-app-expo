@@ -1,8 +1,7 @@
-import React from 'react';
-import { Pressable, View, StyleSheet, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Text } from '@/components/ui/Text';
 import { useAppTheme } from '@/providers/ThemeProvider';
+import { Ionicons } from '@expo/vector-icons';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 export interface GoogleEmailButtonProps {
   onPress: () => void;
@@ -17,7 +16,7 @@ export function GoogleEmailButton({ onPress, loading = false, disabled = false }
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Continue with Google Email"
+      accessibilityLabel="Continue with Google Emailllr"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
       onPress={onPress}

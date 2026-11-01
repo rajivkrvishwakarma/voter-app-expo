@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, type ViewProps, type ViewStyle } from 'react-native';
+import { View, type ViewProps, type ViewStyle, type StyleProp } from 'react-native';
 import { useAppTheme } from '@/providers/ThemeProvider';
 
 export type CardVariant = 'default' | 'elevated' | 'bordered';
@@ -8,7 +8,7 @@ export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 export interface CardProps extends ViewProps {
   variant?: CardVariant;
   padding?: CardPadding;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   className?: string;
 }
 

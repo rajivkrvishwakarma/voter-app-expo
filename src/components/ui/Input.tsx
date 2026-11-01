@@ -6,61 +6,89 @@ import {
   StyleSheet,
   type ViewStyle,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '@/providers/ThemeProvider';
 import { Text } from './Text';
 
 export interface InputProps extends TextInputProps {
   label?: string;
+  required?: boolean;
+  labelBadge?: ReactNode;
+  helperRight?: ReactNode;
   hint?: string;
   error?: string;
   leftElement?: ReactNode;
   rightElement?: ReactNode;
   containerStyle?: ViewStyle;
+  inputWrapperStyle?: ViewStyle;
 }
 
 export function Input({
   label,
+  required,
+  labelBadge,
+  helperRight,
   hint,
   error,
   leftElement,
   rightElement,
   containerStyle,
+  inputWrapperStyle,
   style,
   onFocus,
   onBlur,
   ...textInputProps
 }: InputProps) {
-  const { theme } = useAppTheme();
+  const { theme, isDark } = useAppTheme();
   const [isFocused, setIsFocused] = useState(false);
 
   const hasError = Boolean(error);
+  const inputBg = isDark ? '#101C38' : '#F1F5FD';
 
   const getBorderColor = () => {
     if (hasError) return theme.colors.status.error.solid;
-    if (isFocused) return theme.colors.border.focus;
-    return theme.colors.border.default;
+    if (isFocused) return theme.colors.brand.primary;
+    return isDark ? '#1E356A' : 'transparent';
   };
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
-        <Text
-          variant="label"
-          weight="medium"
-          style={[styles.label, { color: theme.colors.text.secondary }]}
-        >
-          {label}
-        </Text>
+      {/* Label & Top Helper Row */}
+      {(label || helperRight || labelBadge) && (
+        <View style={styles.labelRow}>
+          <View style={styles.labelLeftContainer}>
+            {label && (
+              <Text variant="label" weight="bold" style={styles.labelText}>
+                {label}
+                {required && (
+                  <Text variant="label" style={styles.requiredAsterisk}>
+                    {' '}*
+                  </Text>
+                )}
+              </Text>
+            )}
+            {labelBadge && <View style={styles.badgeWrapper}>{labelBadge}</View>}
+          </View>
+
+          {typeof helperRight === 'string' ? (
+            <Text variant="caption" color="secondary" style={styles.helperRightText}>
+              {helperRight}
+            </Text>
+          ) : (
+            helperRight
+          )}
+        </View>
       )}
 
+      {/* Input Box Wrapper */}
       <View
         style={[
           styles.inputWrapper,
           {
-            backgroundColor: theme.colors.background.surface,
+            backgroundColor: inputBg,
             borderColor: getBorderColor(),
-            borderRadius: theme.tokens.radii.md,
           },
+          inputWrapperStyle,
         ]}
       >
         {leftElement && <View style={styles.accessoryLeft}>{leftElement}</View>}
@@ -70,7 +98,6 @@ export function Input({
             styles.input,
             {
               color: theme.colors.text.primary,
-              fontSize: theme.tokens.typography.sizes.base,
             },
             style,
           ]}
@@ -92,22 +119,26 @@ export function Input({
         {rightElement && <View style={styles.accessoryRight}>{rightElement}</View>}
       </View>
 
-      {error ? (
+      {/* Error Feedback */}
+      {error && (
         <Text
           variant="caption"
-          style={[styles.feedback, { color: theme.colors.status.error.text }]}
+          style={styles.errorText}
           accessibilityRole="alert"
         >
           {error}
         </Text>
-      ) : hint ? (
-        <Text
-          variant="caption"
-          style={[styles.feedback, { color: theme.colors.text.muted }]}
-        >
-          {hint}
-        </Text>
-      ) : null}
+      )}
+
+      {/* Hint Note with Info Icon */}
+      {!error && hint && (
+        <View style={styles.hintRow}>
+          <Ionicons name="information-circle-outline" size={14} color="#64748B" />
+          <Text variant="caption" color="secondary" style={styles.hintText}>
+            {hint}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -116,28 +147,65 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
   },
-  label: {
-    marginBottom: 6,
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 7,
+  },
+  labelLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  labelText: {
+    fontSize: 13,
+    letterSpacing: 0.2,
+  },
+  requiredAsterisk: {
+    color: '#EF4444',
+  },
+  badgeWrapper: {
+    marginLeft: 6,
+  },
+  helperRightText: {
+    fontSize: 11,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    minHeight: 44, // 44dp minimum touch target
+    borderWidth: 1.5,
+    minHeight: 48,
+    borderRadius: 14,
     paddingHorizontal: 12,
   },
   input: {
     flex: 1,
-    height: 44,
+    height: 48,
+    fontSize: 14,
     paddingVertical: 0,
   },
   accessoryLeft: {
-    marginRight: 8,
+    marginRight: 10,
   },
   accessoryRight: {
     marginLeft: 8,
   },
-  feedback: {
+  errorText: {
+    color: '#EF4444',
+    fontSize: 11,
     marginTop: 4,
+    marginLeft: 4,
+  },
+  hintRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 6,
+    paddingHorizontal: 2,
+  },
+  hintText: {
+    fontSize: 11,
+    marginLeft: 5,
+    flex: 1,
+    lineHeight: 15,
   },
 });

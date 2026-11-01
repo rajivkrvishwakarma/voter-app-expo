@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { QueryProvider } from './QueryProvider';
 import { ThemeProvider } from './ThemeProvider';
 
@@ -10,10 +10,11 @@ export interface AppProvidersProps {
 /**
  * Root Application Providers composition wrapper.
  * Composes SafeAreaProvider, QueryProvider, and ThemeProvider in a deterministic hierarchy.
+ * Providing initialMetrics ensures instant safe area inset calculation with zero top-layout jerk.
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <QueryProvider>
         <ThemeProvider>
           {children}

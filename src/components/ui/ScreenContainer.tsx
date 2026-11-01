@@ -6,7 +6,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 import { useAppTheme } from '@/providers/ThemeProvider';
 
 export interface ScreenContainerProps {
@@ -25,23 +25,32 @@ export function ScreenContainer({
   scrollable = false,
   refreshControl,
   contentPadding = true,
-  edges = ['top', 'left', 'right'],
+  edges = ['top', 'left', 'right', 'bottom'],
   style,
   contentContainerStyle,
   className,
 }: ScreenContainerProps) {
   const { theme, isDark } = useAppTheme();
+  const insets = useSafeAreaInsets();
 
   const containerPadding: ViewStyle = contentPadding
     ? { paddingHorizontal: theme.tokens.spacing.lg }
     : {};
 
+  // Compute safe padding synchronously to prevent asynchronous layout jerks on screen mount
+  const safePadding: ViewStyle = {
+    paddingTop: edges.includes('top') ? insets.top : 0,
+    paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
+    paddingLeft: edges.includes('left') ? insets.left : 0,
+    paddingRight: edges.includes('right') ? insets.right : 0,
+  };
+
   return (
-    <SafeAreaView
-      edges={edges}
+    <View
       className={className}
       style={[
         styles.safeArea,
+        safePadding,
         { backgroundColor: theme.colors.background.canvas },
         style,
       ]}
@@ -66,7 +75,7 @@ export function ScreenContainer({
           {children}
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -79,6 +88,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: 24,
   },
   staticContent: {
     flex: 1,

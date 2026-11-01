@@ -16,7 +16,27 @@ export const API_ENDPOINTS = {
   },
   // Authentication & Credential verification endpoints
   auth: {
-    verifyEmailCredential: '/auth/verify-email-credential',
+    register: '/api/register',
+    logout: '/api/logout',
+    verifyEmailCredential: '/api/auth/verify-email-credential',
+  },
+  // User profile endpoints
+  user: {
+    me: '/api/user',
+  },
+  // Politician & Campaign endpoints
+  campaign: {
+    bannerScreen: '/api/banner-screen',
+  },
+  // Voter management endpoints
+  voters: {
+    allVoters: '/api/all-voter-list',
+    searchByName: '/api/search-by-name',
+  },
+  // Localization & Language endpoints
+  localization: {
+    languages: '/api/languages',
+    changeLanguage: '/api/change-language',
   },
 } as const;
 

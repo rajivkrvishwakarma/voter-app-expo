@@ -275,6 +275,17 @@ Rules:
 
 **All app colors and design tokens must come from the centralized theme system.** Never scatter arbitrary hex colors throughout screens.
 
+### 7.1 Official Theme Colors & Palette Contract (Mandatory)
+- **Light Theme**: Clean, crisp **White & Slate** canvas (`#F8FAFC`, `#FFFFFF`) with vibrant **Sky Blue / Electric Royal Blue** (`#0284C7`, `#0EA5E9`) primary accents.
+- **Dark Theme**: Deep, rich **Dark Navy / Midnight Blue** (`#070D1E`, `#0D1935`, `#132347`) with glowing electric sky blue accents (`#38BDF8`, `#0EA5E9`). **Never** use flat charcoal grey or pure OLED black—the app identity is strictly **Dark Navy Blue**.
+- **Design Tone**: **Bold, authoritative, executive-grade mobile application**. Designed for high-stakes political campaigning and voter mobilization.
+
+### 7.2 Professional Mobile App Design Standard (Anti-Toy UI Rules)
+- **No childish or toy-like design**: Strictly prohibit giant cartoonish icon circles, oversized emoji, rainbow badges, or clumsy amateur bubbles.
+- **Authoritative Typography**: Use confident headline hierarchies (`bold`, `600`/`700` weights), clean uppercase micro-labels for inputs (`letterSpacing: 0.5`), and high-legibility body copy.
+- **Refined Form Inputs**: Inputs must feature refined heights, subtle modern backgrounds (`#FFFFFF` in light, `#0D1935` in dark), 1px borders that glow sky-blue on focus (`#0284C7` / `#38BDF8`), and discreet left icons.
+- **Executive Badges & Cards**: Use crisp pill badges (e.g. `VERIFIED CAMPAIGN PORTAL`), subtle border outlines (`#E2E8F0` / `#1E356A`), and elegant depth elevations.
+
 Define and consistently use tokens for:
 
 - Background and surface levels.

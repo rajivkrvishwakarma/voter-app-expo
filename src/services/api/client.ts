@@ -1,4 +1,5 @@
 import { ENV } from '@/constants/env';
+import { TokenStorage } from '@/features/auth/services/token.storage';
 import {
   AppError,
   NetworkError,
@@ -77,9 +78,19 @@ class ApiClient {
       customSignal.addEventListener('abort', () => controller.abort());
     }
 
+    // Attach stored JWT authentication token if available and not already provided
+    let authToken = customHeaders['Authorization'];
+    if (!authToken) {
+      const storedToken = await TokenStorage.getToken();
+      if (storedToken) {
+        authToken = `Bearer ${storedToken}`;
+      }
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...(authToken ? { Authorization: authToken } : {}),
       ...customHeaders,
     };
 

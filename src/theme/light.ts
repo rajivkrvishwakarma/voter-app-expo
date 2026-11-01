@@ -52,15 +52,15 @@ export const lightTheme: AppTheme = {
   isDark: false,
   colors: {
     background: {
-      canvas: palette.slate[50],
-      surface: palette.common.white,
+      canvas: palette.slate[50],          // Crisp off-white canvas
+      surface: palette.common.white,       // Pure white card surfaces
       surfaceElevated: palette.common.white,
-      surfaceSubtle: palette.slate[100],
+      surfaceSubtle: palette.brand[50],    // Subtle sky blue tint
     },
     text: {
-      primary: palette.slate[900],
+      primary: palette.slate[900],        // Authoritative, bold dark slate
       secondary: palette.slate[600],
-      tertiary: palette.slate[400],
+      tertiary: palette.slate[500],
       muted: palette.slate[400],
       inverse: palette.common.white,
     },
@@ -68,14 +68,14 @@ export const lightTheme: AppTheme = {
       subtle: palette.slate[100],
       default: palette.slate[200],
       strong: palette.slate[300],
-      focus: palette.brand[500],
+      focus: palette.brand[500],          // Sky Blue focus ring
     },
     brand: {
-      primary: palette.brand[600],
+      primary: palette.brand[600],        // Vibrant Sky / Royal Blue (#0284C7)
       primaryHover: palette.brand[700],
       primaryPressed: palette.brand[800],
       onPrimary: palette.common.white,
-      subtle: palette.brand[50],
+      subtle: palette.brand[100],         // Light sky blue pill / badge
     },
     status: {
       success: {
@@ -97,10 +97,10 @@ export const lightTheme: AppTheme = {
         solid: palette.error[600],
       },
       info: {
-        bg: palette.info[50],
-        border: palette.info[100],
-        text: palette.info[700],
-        solid: palette.info[600],
+        bg: palette.brand[50],
+        border: palette.brand[100],
+        text: palette.brand[700],
+        solid: palette.brand[600],
       },
     },
   },
