@@ -1,5 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
+import { GlobalAlert } from '@/components/ui';
 import { QueryProvider } from './QueryProvider';
 import { ThemeProvider } from './ThemeProvider';
 
@@ -18,6 +19,7 @@ export function AppProviders({ children }: AppProvidersProps) {
       <QueryProvider>
         <ThemeProvider>
           {children}
+          <GlobalAlert />
         </ThemeProvider>
       </QueryProvider>
     </SafeAreaProvider>

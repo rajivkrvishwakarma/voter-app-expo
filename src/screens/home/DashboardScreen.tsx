@@ -1,6 +1,6 @@
 import { Button, ScreenContainer, Text } from '@/components/ui';
 import { useCurrentUserQuery } from '@/features/auth';
-import { useLanguagesQuery, useChangeLanguageMutation } from '@/features/localization';
+import { useChangeLanguageMutation, useLanguagesQuery } from '@/features/localization';
 import { useAppTheme } from '@/providers/ThemeProvider';
 import { useAuthStore } from '@/store/auth.store';
 import { resolveImageUrl } from '@/utils/imageUrl';
@@ -198,10 +198,10 @@ export function DashboardScreen({ onLogout, onOpenProfile, onOpenSearch }: Dashb
         {/* Center Portal Title */}
         <View style={styles.headerCenter}>
           <Text style={[styles.portalTag, { color: isDark ? '#FFFFFF' : '#0F172A' }]}>
-            Jeeto
+            Vote
           </Text>
           <Text style={[styles.portalTag2, { color: activeBlue }]}>
-            Lead
+            Setu
           </Text>
         </View>
 

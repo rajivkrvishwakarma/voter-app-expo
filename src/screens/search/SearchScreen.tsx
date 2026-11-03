@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   Pressable,
   StyleSheet,
   TextInput,
@@ -10,13 +9,14 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Text, WaveScreenContainer } from '@/components/ui';
+import { Text, WaveScreenContainer } from '@/components/ui';
 import {
   useAllVotersQuery,
   useSearchByNameQuery,
   VoterList,
   type Voter,
 } from '@/features/voters';
+import { VoterDetailsScreen } from '@/screens/voter-details';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAppTheme } from '@/providers/ThemeProvider';
 
@@ -59,6 +59,16 @@ export function SearchScreen({ onBack }: SearchScreenProps) {
   const searchBarBg = isDark ? '#0D1935' : '#FFFFFF';
   const searchBarBorder = isDark ? '#1E356A' : '#EDF2F7';
   const activeBlue = isDark ? '#38BDF8' : '#0284C7';
+
+  // If an individual voter is selected, render full-page VoterDetailsScreen wrapped in WaveScreenContainer
+  if (selectedVoter) {
+    return (
+      <VoterDetailsScreen
+        voter={selectedVoter}
+        onBack={() => setSelectedVoter(null)}
+      />
+    );
+  }
 
   return (
     <WaveScreenContainer
@@ -137,65 +147,6 @@ export function SearchScreen({ onBack }: SearchScreenProps) {
       >
         <Ionicons name="barcode-outline" size={28} color="#FFFFFF" />
       </TouchableOpacity>
-
-      {/* Voter Details Modal */}
-      <Modal
-        visible={!!selectedVoter}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setSelectedVoter(null)}
-      >
-        <View style={styles.modalBackdrop}>
-          <View style={[styles.modalContent, { backgroundColor: searchBarBg, borderColor: searchBarBorder }]}>
-            <View style={styles.modalHandle} />
-            <Text variant="subtitle" weight="bold" style={styles.modalTitle}>
-              {selectedVoter?.name}
-            </Text>
-
-            <View style={styles.modalInfoGrid}>
-              <View style={styles.infoRow}>
-                <Text variant="caption" color="secondary">Voter ID:</Text>
-                <Text variant="body" weight="bold" style={{ color: activeBlue }}>
-                  {selectedVoter?.voter_id || '—'}
-                </Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text variant="caption" color="secondary">Age / Gender:</Text>
-                <Text variant="body">
-                  {selectedVoter?.age ? `${selectedVoter.age} yrs` : '—'} • {selectedVoter?.gender || '—'}
-                </Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text variant="caption" color="secondary">Father / Relative:</Text>
-                <Text variant="body">{selectedVoter?.father_name || '—'}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text variant="caption" color="secondary">Booth & Part:</Text>
-                <Text variant="body">
-                  Booth {selectedVoter?.booth || '—'} (Part {selectedVoter?.part_no || '—'})
-                </Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text variant="caption" color="secondary">SRN:</Text>
-                <Text variant="body">{selectedVoter?.srn || '—'}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text variant="caption" color="secondary">Address:</Text>
-                <Text variant="body" numberOfLines={2}>
-                  {selectedVoter?.address || '—'}
-                </Text>
-              </View>
-            </View>
-
-            <Button
-              title="Close"
-              variant="outline"
-              size="md"
-              onPress={() => setSelectedVoter(null)}
-            />
-          </View>
-        </View>
-      </Modal>
     </WaveScreenContainer>
   );
 }
@@ -217,7 +168,7 @@ const styles = StyleSheet.create({
   },
   searchBarWrapper: {
     paddingHorizontal: 16,
-    marginTop: -36, // Pull up over the bottom wave curve
+    marginTop: -16, // Balanced overlap over the wave
     marginBottom: 12,
     zIndex: 10,
   },
@@ -273,39 +224,5 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     zIndex: 50,
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderWidth: 1,
-    padding: 24,
-    paddingBottom: 40,
-  },
-  modalHandle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#CBD5E1',
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontSize: 18,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  modalInfoGrid: {
-    gap: 10,
-    marginBottom: 20,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
 });

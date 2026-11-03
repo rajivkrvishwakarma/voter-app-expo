@@ -6,6 +6,8 @@ export const voterKeys = {
   all: ['voters'] as const,
   list: () => [...voterKeys.all, 'list'] as const,
   search: (name: string) => [...voterKeys.all, 'search', name] as const,
+  detail: (id?: number | string | null, voterId?: string | null) =>
+    [...voterKeys.all, 'detail', id ?? 'none', voterId ?? 'none'] as const,
 };
 
 export function useAllVotersQuery() {

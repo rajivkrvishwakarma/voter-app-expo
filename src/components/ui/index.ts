@@ -5,3 +5,4 @@ export * from './Input';
 export * from './PhoneInput';
 export * from './ScreenContainer';
 export * from './WaveScreenContainer';
+export * from './GlobalAlert';

@@ -73,3 +73,10 @@ export interface GetAllVotersResponse {
 
 export type SearchVotersResponse = GetAllVotersResponse;
 
+export interface GetIndividualVoterDetailsResponse {
+  status: number;
+  message: string;
+  language: string;
+  voter: Voter;
+}
+

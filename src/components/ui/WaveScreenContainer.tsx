@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { type ReactElement, type ReactNode } from 'react';
 import {
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,7 +17,7 @@ import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { Text } from './Text';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const WAVE_SVG_HEIGHT = 80;
+const WAVE_SVG_HEIGHT = 46;
 
 export interface WaveScreenContainerProps {
   children: ReactNode;
@@ -57,7 +59,7 @@ export function WaveScreenContainer({
       <StatusBar style="light" />
 
       {/* 1. Sky Blue Top Section with Navigation Bar */}
-      <View style={[styles.topSection, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.topSection, { paddingTop: insets.top + 2 }]}>
         {/* Decorative ambient wave ribbon in top right */}
         <Svg
           style={StyleSheet.absoluteFill}
@@ -130,43 +132,51 @@ export function WaveScreenContainer({
             </LinearGradient>
           </Defs>
 
-          {/* Background Soft Wave Ribbon (sweeps from mid down to bottom right) */}
-          {/* Background Soft Wave Ribbon */}
+          {/* Background Soft Wave Ribbon (accent depth) */}
           <Path
-            d={`M 0,0 L ${W},0 L ${W},24 C ${W * 0.82},39 ${W * 0.64},12 ${W * 0.42},31 C ${W * 0.22},41 ${W * 0.08},23 0,29 Z`}
+            d={`M 0,0 L ${W},0 L ${W},30 C ${W * 0.82},46 ${W * 0.64},16 ${W * 0.42},38 C ${W * 0.22},46 ${W * 0.08},26 0,34 Z`}
             fill="url(#waveGradSecondary)"
           />
 
           {/* Foreground Bold Sky-Blue Wave */}
           <Path
-            d={`M 0,0 L ${W},0 L ${W},14 C ${W * 0.82},6 ${W * 0.62},28 ${W * 0.38},27 C ${W * 0.2},26 ${W * 0.08},11 0,17 Z`}
+            d={`M 0,0 L ${W},0 L ${W},18 C ${W * 0.82},10 ${W * 0.62},34 ${W * 0.38},32 C ${W * 0.2},30 ${W * 0.08},14 0,22 Z`}
             fill="url(#waveGradPrimary)"
           />
         </Svg>
       </View>
 
       {/* 3. Screen Body Content */}
-      {scrollable ? (
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          refreshControl={refreshControl}
-        >
-          {children}
-        </ScrollView>
-      ) : (
-        <View style={[styles.staticContent, contentContainerStyle]}>
-          {children}
-        </View>
-      )}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {scrollable ? (
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            automaticallyAdjustKeyboardInsets={true}
+            refreshControl={refreshControl}
+          >
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={[styles.staticContent, contentContainerStyle]}>
+            {children}
+          </View>
+        )}
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  keyboardAvoid: {
     flex: 1,
   },
   topSection: {
@@ -226,8 +236,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingTop: 8,
   },
   staticContent: {
     flex: 1,
+    paddingTop: 8,
   },
 });

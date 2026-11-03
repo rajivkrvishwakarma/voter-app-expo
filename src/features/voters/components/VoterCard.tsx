@@ -79,14 +79,24 @@ export function VoterCard({
         onPress={onToggleExpand}
         style={styles.cardHeader}
       >
-        {/* Avatar or User Icon */}
-        <View style={[styles.avatarBox, { backgroundColor: iconBoxBg }]}>
+        {/* Profile Icon / Avatar (Tap to view full individual details) */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={(e) => {
+            e.stopPropagation();
+            if (onViewDetails) {
+              onViewDetails(voter);
+            }
+          }}
+          style={[styles.avatarBox, { backgroundColor: iconBoxBg }]}
+          accessibilityLabel={`View profile details of ${voter.name}`}
+        >
           {avatarUri ? (
             <Image source={{ uri: avatarUri }} style={styles.avatarImage} resizeMode="cover" />
           ) : (
             <Ionicons name="person-outline" size={24} color={activeBlue} />
           )}
-        </View>
+        </TouchableOpacity>
 
         {/* Voter Main Details */}
         <View style={styles.detailsColumn}>
