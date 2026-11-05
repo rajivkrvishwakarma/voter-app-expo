@@ -98,6 +98,7 @@ export function Input({
             styles.input,
             {
               color: theme.colors.text.primary,
+              fontFamily: theme.tokens.typography.fonts.regular,
             },
             style,
           ]}

@@ -135,7 +135,7 @@ export function RegisterScreen({ onSuccess }: RegisterScreenProps) {
         {/* Screen Header */}
         <View style={styles.header}>
           <Text variant="title" weight="bold" style={styles.titleText}>
-            Canvasser Sign In
+            VoteSetu Sign In
           </Text>
           <Text variant="body" color="secondary" style={styles.subtitleText}>
             Please enter your credentials to access campaign materials.

@@ -3,6 +3,8 @@ export * from './Button';
 export * from './Card';
 export * from './Input';
 export * from './PhoneInput';
+export * from './InlineEditableInput';
+export * from './ModalWrapper';
 export * from './ScreenContainer';
 export * from './WaveScreenContainer';
 export * from './GlobalAlert';

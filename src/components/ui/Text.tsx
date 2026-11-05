@@ -70,9 +70,18 @@ export function Text({
     },
   }[variant];
 
-  const resolvedWeight = weight
-    ? theme.tokens.typography.weights[weight]
-    : variantStyles.fontWeight;
+  const defaultVariantWeights: Record<TextVariant, TextWeight> = {
+    display: 'bold',
+    title: 'bold',
+    subtitle: 'semibold',
+    body: 'regular',
+    caption: 'regular',
+    label: 'medium',
+  };
+
+  const resolvedWeightName: TextWeight = weight ?? defaultVariantWeights[variant];
+  const resolvedWeight = theme.tokens.typography.weights[resolvedWeightName];
+  const fontFamily = theme.tokens.typography.fonts[resolvedWeightName];
 
   return (
     <RNText
@@ -82,6 +91,7 @@ export function Text({
           color: colorStyles[color],
           fontSize: variantStyles.fontSize,
           lineHeight: variantStyles.lineHeight,
+          fontFamily,
           fontWeight: resolvedWeight,
           textAlign: align,
         },

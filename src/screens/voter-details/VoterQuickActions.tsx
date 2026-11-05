@@ -1,38 +1,38 @@
-import React, { useState } from 'react';
+import { InlineEditableInput, Text } from '@/components/ui';
+import { findColorOption, type VoterColorOption } from '@/constants';
+import {
+  buildSurveyUpdatePayload,
+  useUpdateSurveyDetailsMutation,
+  type Voter,
+} from '@/features/voters';
+import { useAppTheme } from '@/providers/ThemeProvider';
+import { triggerAlert } from '@/store/alert.store';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 import {
   StyleSheet,
   Switch,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Text } from '@/components/ui';
-import type { Voter } from '@/features/voters';
-import { useAppTheme } from '@/providers/ThemeProvider';
-import { triggerAlert } from '@/store/alert.store';
+import { ColorCodePickerModal } from './ColorCodePickerModal';
 
 export interface VoterQuickActionsProps {
   voter: Voter;
 }
 
-const COLOR_OPTIONS = [
-  { name: 'Sky Blue', hex: '#0284C7' },
-  { name: 'Green', hex: '#22C55E' },
-  { name: 'Amber', hex: '#F59E0B' },
-  { name: 'Red', hex: '#EF4444' },
-  { name: 'Purple', hex: '#8B5CF6' },
-];
-
 export function VoterQuickActions({ voter }: VoterQuickActionsProps) {
   const { isDark } = useAppTheme();
+  const updateMutation = useUpdateSurveyDetailsMutation();
 
   // Mobile editing state
   const [mobileNumber, setMobileNumber] = useState(voter?.mobile_1 || '');
-  const [isEditingMobile, setIsEditingMobile] = useState(false);
 
   // Status & mobilization states
-  const [colorIndex, setColorIndex] = useState(0);
+  const [selectedColor, setSelectedColor] = useState<VoterColorOption>(() =>
+    findColorOption(voter?.survey?.color_code)
+  );
+  const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   const [isStar, setIsStar] = useState(voter?.survey?.star_voter === 1);
   const [isVoted, setIsVoted] = useState(voter?.survey?.is_voted === 1);
 
@@ -40,40 +40,36 @@ export function VoterQuickActions({ voter }: VoterQuickActionsProps) {
   const cardBorder = isDark ? '#1E356A' : '#EDF2F7';
   const inputBg = isDark ? '#132347' : '#F8FAFC';
   const activeBlue = isDark ? '#38BDF8' : '#0284C7';
-  const currentColor = COLOR_OPTIONS[colorIndex];
 
-  const handleSaveMobile = () => {
-    setIsEditingMobile(false);
-    triggerAlert.success(
-      'Mobile Updated',
-      mobileNumber ? `Phone set to ${mobileNumber}` : 'Mobile number cleared'
+  const handleSaveMobile = (savedNumber: string) => {
+    setMobileNumber(savedNumber);
+    updateMutation.mutate(
+      buildSurveyUpdatePayload(voter, { mobile_1: savedNumber })
     );
   };
 
-  const handleCycleColor = () => {
-    const nextIndex = (colorIndex + 1) % COLOR_OPTIONS.length;
-    setColorIndex(nextIndex);
-    const nextColor = COLOR_OPTIONS[nextIndex];
-    triggerAlert.info('Colour Code Updated', `Categorized as ${nextColor.name}`);
+  const handleSelectColor = (option: VoterColorOption) => {
+    setSelectedColor(option);
+    setIsColorModalOpen(false);
+    // Call survey details update API passing color hex code in string
+    updateMutation.mutate(
+      buildSurveyUpdatePayload(voter, { color_code: option.hex })
+    );
   };
 
   const handleToggleStar = () => {
     const next = !isStar;
     setIsStar(next);
-    if (next) {
-      triggerAlert.success('Star Voter Marked', `${voter.name} is now flagged as a VIP star voter.`);
-    } else {
-      triggerAlert.info('Star Voter Removed', `${voter.name} is no longer marked as a star voter.`);
-    }
+    updateMutation.mutate(
+      buildSurveyUpdatePayload(voter, { star_voter: next })
+    );
   };
 
   const handleToggleVoted = (val: boolean) => {
     setIsVoted(val);
-    if (val) {
-      triggerAlert.success('Voting Status: Voted', `${voter.name} marked as voted.`);
-    } else {
-      triggerAlert.warning('Voting Status: Not Voted', `${voter.name} marked as not voted yet.`);
-    }
+    updateMutation.mutate(
+      buildSurveyUpdatePayload(voter, { is_voted: val })
+    );
   };
 
   const handleSameAddress = () => {
@@ -90,87 +86,60 @@ export function VoterQuickActions({ voter }: VoterQuickActionsProps) {
     );
   };
 
+  const isLightColor =
+    selectedColor.hex.toLowerCase() === '#ffffff' ||
+    selectedColor.hex.toLowerCase() === '#ffff00';
+
   return (
     <View style={[styles.containerCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
-      {/* 1. Mobile Number Row with In-place Edit */}
-      <View style={styles.actionRow}>
-        <View style={styles.labelCol}>
-          <Text variant="caption" color="secondary">Mobile - 1</Text>
-          {isEditingMobile ? (
-            <TextInput
-              value={mobileNumber}
-              onChangeText={setMobileNumber}
-              placeholder="Enter mobile number"
-              placeholderTextColor={isDark ? '#64748B' : '#94A3B8'}
-              keyboardType="phone-pad"
-              autoFocus
-              style={[
-                styles.mobileInput,
-                {
-                  backgroundColor: inputBg,
-                  borderColor: activeBlue,
-                  color: isDark ? '#FFFFFF' : '#0F172A',
-                },
-              ]}
-            />
-          ) : (
-            <Text variant="body" weight="medium" style={styles.mobileDisplay}>
-              {mobileNumber || '—'}
-            </Text>
-          )}
-        </View>
-
-        {/* Action Icons with Bold Variant */}
-        <View style={styles.iconsRow}>
-          {isEditingMobile ? (
+      {/* 1. Mobile Number Row with Reusable InlineEditableInput */}
+      <InlineEditableInput
+        value={mobileNumber}
+        onChangeText={setMobileNumber}
+        onSave={handleSaveMobile}
+        placeholder="Mobile - 1"
+        keyboardType="phone-pad"
+        isSaving={updateMutation.isPending}
+        extraActions={
+          <>
             <TouchableOpacity
-              onPress={handleSaveMobile}
-              style={[styles.iconButton, { backgroundColor: '#DCFCE7' }]}
-              accessibilityLabel="Save Mobile"
-            >
-              <Ionicons name="checkmark-circle" size={20} color="#16A34A" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={() => setIsEditingMobile(true)}
+              onPress={() => triggerAlert.info('Contact Info', `Contact details for ${voter.name}`)}
               style={[styles.iconButton, { backgroundColor: inputBg }]}
-              accessibilityLabel="Edit Mobile"
+              accessibilityLabel="Contact Book"
             >
-              <Ionicons name="pencil" size={17} color={activeBlue} />
+              <Ionicons name="book" size={17} color={activeBlue} />
             </TouchableOpacity>
-          )}
 
-          <TouchableOpacity
-            onPress={() => triggerAlert.info('Contact Info', `Contact details for ${voter.name}`)}
-            style={[styles.iconButton, { backgroundColor: inputBg }]}
-            accessibilityLabel="Contact Book"
-          >
-            <Ionicons name="book" size={17} color={activeBlue} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => triggerAlert.info('Add Member', `Link family or household member to ${voter.name}`)}
-            style={[styles.iconButton, { backgroundColor: inputBg }]}
-            accessibilityLabel="Add Member"
-          >
-            <Ionicons name="person-add" size={17} color={activeBlue} />
-          </TouchableOpacity>
-        </View>
-      </View>
+            <TouchableOpacity
+              onPress={() => triggerAlert.info('Add Member', `Link family or household member to ${voter.name}`)}
+              style={[styles.iconButton, { backgroundColor: inputBg }]}
+              accessibilityLabel="Add Member"
+            >
+              <Ionicons name="person-add" size={17} color={activeBlue} />
+            </TouchableOpacity>
+          </>
+        }
+      />
 
       <View style={[styles.divider, { backgroundColor: cardBorder }]} />
 
       {/* 2. Color Code, Star (Other), and Voted Toggle Row */}
       <View style={styles.controlsRow}>
-        {/* Colour Code Button */}
+        {/* Colour Code Button -> opens bottom sheet modal */}
         <TouchableOpacity
-          onPress={handleCycleColor}
+          onPress={() => setIsColorModalOpen(true)}
           activeOpacity={0.7}
           style={styles.colorCodeBtn}
-          accessibilityLabel="Change Color Code"
+          accessibilityLabel="Open Colour Code Picker"
         >
           <Text variant="caption" weight="medium" color="secondary">Colour Code</Text>
-          <View style={[styles.colorCircle, { backgroundColor: currentColor.hex }]} />
+          <View
+            style={[
+              styles.colorCircle,
+              { backgroundColor: selectedColor.hex },
+              isLightColor && styles.subtleBorder,
+            ]}
+          />
         </TouchableOpacity>
 
         {/* Star Voter Toggle with Bold Star Icon */}
@@ -180,7 +149,7 @@ export function VoterQuickActions({ voter }: VoterQuickActionsProps) {
           style={styles.starToggleBtn}
           accessibilityLabel="Toggle Star Voter"
         >
-          <Text variant="caption" weight="medium" color="secondary">Other</Text>
+          <Text variant="caption" weight="medium" color="secondary">Star Voter</Text>
           <Ionicons
             name="star"
             size={19}
@@ -203,29 +172,40 @@ export function VoterQuickActions({ voter }: VoterQuickActionsProps) {
 
       <View style={[styles.divider, { backgroundColor: cardBorder }]} />
 
-      {/* 3. Voters on Same Address & Booth Buttons (App Theme Navy & Electric Blue - No Orange) */}
+      {/* 3. Voters on Same Address & Booth Buttons */}
       <View style={styles.sameButtonsCol}>
         <TouchableOpacity
-          activeOpacity={0.8}
           onPress={handleSameAddress}
-          style={[styles.actionBannerBtn, { backgroundColor: activeBlue }]}
+          activeOpacity={0.8}
+          style={[
+            styles.actionBannerBtn,
+            { backgroundColor: isDark ? '#132347' : '#0284C7' },
+          ]}
         >
-          <Ionicons name="home" size={17} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text variant="caption" weight="bold" style={styles.actionBannerBtnText}>
+          <Ionicons
+            name="location"
+            size={17}
+            color={isDark ? '#38BDF8' : '#FFFFFF'}
+            style={{ marginRight: 8 }}
+          />
+          <Text
+            variant="caption"
+            weight="bold"
+            style={[
+              styles.actionBannerBtnText,
+              isDark && { color: '#38BDF8' },
+            ]}
+          >
             VOTERS ON SAME ADDRESS
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          activeOpacity={0.8}
           onPress={handleSameBooth}
+          activeOpacity={0.8}
           style={[
             styles.actionBannerBtn,
-            {
-              backgroundColor: isDark ? '#132347' : '#0F172A',
-              borderColor: isDark ? '#38BDF8' : '#1E293B',
-              borderWidth: 1,
-            },
+            { backgroundColor: isDark ? '#101F42' : '#0F172A' },
           ]}
         >
           <Ionicons
@@ -246,6 +226,14 @@ export function VoterQuickActions({ voter }: VoterQuickActionsProps) {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Reusable Bottom Sheet Modal for Colour Code Picker */}
+      <ColorCodePickerModal
+        visible={isColorModalOpen}
+        selectedColor={selectedColor}
+        onSelectColor={handleSelectColor}
+        onClose={() => setIsColorModalOpen(false)}
+      />
     </View>
   );
 }
@@ -257,32 +245,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 14,
     gap: 12,
-  },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  labelCol: {
-    flex: 1,
-    marginRight: 10,
-  },
-  mobileDisplay: {
-    marginTop: 2,
-    fontSize: 14,
-  },
-  mobileInput: {
-    height: 36,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginTop: 4,
-    fontSize: 14,
-  },
-  iconsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
   },
   iconButton: {
     width: 32,
@@ -307,11 +269,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   colorCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
+  },
+  subtleBorder: {
+    borderWidth: 1.5,
+    borderColor: '#94A3B8',
   },
   starToggleBtn: {
     flexDirection: 'row',

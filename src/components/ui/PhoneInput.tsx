@@ -103,7 +103,13 @@ export function PhoneInput({
             keyboardType="phone-pad"
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            style={[styles.textInput, { color: theme.colors.text.primary }]}
+            style={[
+              styles.textInput,
+              {
+                color: theme.colors.text.primary,
+                fontFamily: theme.tokens.typography.fonts.medium,
+              },
+            ]}
             {...textInputProps}
 
           />

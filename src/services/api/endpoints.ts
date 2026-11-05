@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
     allVoters: '/api/all-voter-list',
     searchByName: '/api/search-by-name',
     individualDetails: '/api/individual-voter-details',
+    surveyDetailsUpdate: '/api/survey-details-update',
   },
   // Localization & Language endpoints
   localization: {

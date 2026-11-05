@@ -1,22 +1,42 @@
 import { ENV } from '@/constants/env';
 import { TokenStorage } from '@/features/auth/services/token.storage';
 import {
+  ApiError,
   AppError,
+  AuthError,
   NetworkError,
   TimeoutError,
-  AuthError,
   ValidationError,
-  ApiError,
 } from './errors';
-import type { ApiResponse, RequestOptions, ApiErrorPayload } from './types';
+import type { ApiErrorPayload, ApiResponse, RequestOptions } from './types';
 
 const DEFAULT_TIMEOUT_MS = 15000;
 
+export type UnauthorizedHandler = (message: string) => void;
+
 class ApiClient {
   private readonly baseUrl: string;
+  private onUnauthorizedHandler?: UnauthorizedHandler;
 
   constructor(baseUrl: string = ENV.apiBaseUrl) {
     this.baseUrl = baseUrl.replace(/\/+$/, '');
+  }
+
+  /**
+   * Registers a global handler invoked when any request returns 401 Unauthenticated.
+   */
+  setOnUnauthorized(handler: UnauthorizedHandler): void {
+    this.onUnauthorizedHandler = handler;
+  }
+
+  private handleUnauthorized(message: string): void {
+    if (this.onUnauthorizedHandler) {
+      try {
+        this.onUnauthorizedHandler(message);
+      } catch {
+        // Prevent listener failures from breaking request flow
+      }
+    }
   }
 
   private buildUrl(endpoint: string, params?: RequestOptions['params']): string {
@@ -48,8 +68,18 @@ class ApiClient {
     const message = payload?.message || `Request failed with status ${response.status}`;
     const code = payload?.code || `HTTP_${response.status}`;
 
-    if (response.status === 401 || response.status === 403) {
-      return new AuthError(message, response.status);
+    // Detect 401 unauthenticated response (e.g. {"status":401,"message":"Unauthenticated. Bearer token required."})
+    const isUnauthenticated =
+      response.status === 401 ||
+      response.status === 403 ||
+      payload?.status === 401 ||
+      (typeof message === 'string' &&
+        (message.toLowerCase().includes('unauthenticated') ||
+          message.toLowerCase().includes('bearer token required')));
+
+    if (isUnauthenticated) {
+      this.handleUnauthorized(message);
+      return new AuthError(message, response.status || 401);
     }
 
     if (response.status === 422) {
@@ -92,6 +122,7 @@ class ApiClient {
       Accept: 'application/json',
       ...(authToken ? { Authorization: authToken } : {}),
       ...customHeaders,
+      'Accept-Encoding': 'identity'
     };
 
     const requestInit: RequestInit = {
@@ -122,6 +153,21 @@ class ApiClient {
       }
 
       const data = (await response.json()) as T;
+
+      // Handle cases where backend returns 200 OK HTTP status but JSON body indicates 401 Unauthenticated
+      if (
+        data &&
+        typeof data === 'object' &&
+        'status' in data &&
+        (data as Record<string, unknown>).status === 401
+      ) {
+        const errorMsg =
+          (data as Record<string, unknown>).message ||
+          'Unauthenticated. Bearer token required.';
+        this.handleUnauthorized(String(errorMsg));
+        throw new AuthError(String(errorMsg), 401);
+      }
+
       return {
         data,
         status: response.status,

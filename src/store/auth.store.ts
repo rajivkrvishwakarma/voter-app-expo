@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import type { User, Politician } from '@/features/auth/types/auth.types';
 import { TokenStorage } from '@/features/auth/services/token.storage';
 import { AuthService } from '@/features/auth/services/auth.service';
+import { apiClient } from '@/services/api/client';
+import { appQueryClient } from '@/providers/QueryProvider';
+import { triggerAlert } from './alert.store';
 
 export interface AuthState {
   token: string | null;
@@ -14,7 +17,10 @@ export interface AuthState {
   setPolitician: (politician: Politician) => void;
   initializeSession: () => Promise<void>;
   logout: () => Promise<void>;
+  handleSessionExpired: () => Promise<void>;
 }
+
+let isHandlingSessionExpiry = false;
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
@@ -64,6 +70,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     await AuthService.logout();
+    appQueryClient.clear();
     set({
       token: null,
       user: null,
@@ -72,5 +79,33 @@ export const useAuthStore = create<AuthState>((set) => ({
       isLoadingSession: false,
     });
   },
+
+  handleSessionExpired: async () => {
+    if (isHandlingSessionExpiry) return;
+    isHandlingSessionExpiry = true;
+
+    try {
+      await TokenStorage.clearAll();
+      appQueryClient.clear();
+      set({
+        token: null,
+        user: null,
+        politician: null,
+        isAuthenticated: false,
+        isLoadingSession: false,
+      });
+      triggerAlert.warning('Session Expired', 'Please log in again to continue.');
+    } finally {
+      setTimeout(() => {
+        isHandlingSessionExpiry = false;
+      }, 2500);
+    }
+  },
 }));
+
+// Automatically hook into global API 401 unauthenticated events
+apiClient.setOnUnauthorized(async (_message) => {
+  await useAuthStore.getState().handleSessionExpired();
+});
+
 

@@ -105,6 +105,12 @@ export const spacing = {
 } as const;
 
 export const typography = {
+  fonts: {
+    regular: 'Poppins_400Regular',
+    medium: 'Poppins_500Medium',
+    semibold: 'Poppins_600SemiBold',
+    bold: 'Poppins_700Bold',
+  },
   sizes: {
     xs: 11,
     sm: 13,
